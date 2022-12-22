@@ -54,7 +54,8 @@ public class AccountManagementService implements AccountManagementServiceDAO {
 		}
 		userRepo.save(user);
 		if(user.getAccountType().equals("Saving")) {
-			SavingsAccount account = new SavingsAccount();
+			Account acc = new SavingsAccount();  //Up-Casting
+			SavingsAccount account= (SavingsAccount)acc; // Down-Casting
 			if(accountRepo.checkNullAccountNo()==null) {
 				account.setAccountNo(1001L);
 			}
@@ -73,7 +74,8 @@ public class AccountManagementService implements AccountManagementServiceDAO {
 			
 		}
 		else {
-			FDAccount account = new FDAccount();
+			Account acc = new FDAccount(); //Up-Casting
+			FDAccount account = (FDAccount)acc; //Down-Casting
 			if(accountRepo.checkNullAccountNo()==null) {
 				account.setAccountNo(1001L);
 			}
