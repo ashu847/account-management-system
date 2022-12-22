@@ -2,10 +2,6 @@ package com.demo.entity;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -41,20 +37,7 @@ public class FDAccount extends Account{
 	public BigDecimal getInrestRate() {
 		final double interestRate= 0.04;
         interestEarned= balance.multiply(BigDecimal.valueOf(interestRate*365)).divide(BigDecimal.valueOf(100.0),RoundingMode.HALF_UP);
-        
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        String date= sdf.format(new Date());
-        Calendar cal = Calendar.getInstance();
-        try{  
-        	cal.setTime(sdf.parse(date)); 
-         }catch(ParseException e){  
-             e.printStackTrace();  
-          }  
-        
-        cal.add(Calendar.DAY_OF_YEAR, 3);  
-        maturityDate=	sdf.format(cal.getTime());
-        accountRenew=false;
-        return interestEarned;
+               return interestEarned;
         
 	}
 

@@ -1,7 +1,9 @@
 package com.demo.service;
 
 import java.math.BigDecimal;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -52,7 +54,7 @@ public class AccountManagementService implements AccountManagementServiceDAO {
 		}
 		userRepo.save(user);
 		if(user.getAccountType().equals("Saving")) {
-			Account account = new SavingsAccount();
+			SavingsAccount account = new SavingsAccount();
 			if(accountRepo.checkNullAccountNo()==null) {
 				account.setAccountNo(1001L);
 			}
@@ -71,20 +73,33 @@ public class AccountManagementService implements AccountManagementServiceDAO {
 			
 		}
 		else {
-			Account account = new FDAccount();
+			FDAccount account = new FDAccount();
 			if(accountRepo.checkNullAccountNo()==null) {
 				account.setAccountNo(1001L);
 			}
 			else {
 			account.setAccountNo(accountRepo.getMaxAccountNo()+1L);
 			}
-			String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+			 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		     String date= sdf.format(new Date());
 			//account.setAccountNo(10002L);
 			account.setBalance(BigDecimal.valueOf(3000));
 			account.setAccType(user.getAccountType());
 			account.setOpeningDate(date);
 			account.setUser(user);
 			account.getInrestRate();
+			
+	        Calendar cal = Calendar.getInstance();
+	        try{  
+	        	cal.setTime(sdf.parse(date)); 
+	         }catch(ParseException e){  
+	             e.printStackTrace();  
+	          }  
+	        
+	        cal.add(Calendar.DAY_OF_YEAR, 3); 
+
+			account.setMaturityDate(sdf.format(cal.getTime()));
+			account.setAccountRenew(false);
 			accountRepo.save(account);
 			return "FD Account Opened Successfully";
 		}
