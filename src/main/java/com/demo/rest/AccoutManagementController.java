@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.demo.dto.UserDTO;
 import com.demo.entity.Account;
 import com.demo.entity.Transaction;
 import com.demo.entity.User;
@@ -22,8 +23,8 @@ public class AccoutManagementController {
 	
 	
 	@PostMapping("/add/account")
-	public ResponseEntity<String> createAccount(@RequestBody User user){
-		String response=accService.openAccount(user);
+	public ResponseEntity<String> createAccount(@RequestBody UserDTO userDTO){
+		String response=accService.openAccount(userDTO);
 		return ResponseEntity.ok(response);
 	}
 	
@@ -42,6 +43,12 @@ public class AccoutManagementController {
 	@PostMapping("/update/account")
 	public ResponseEntity<String> updateAccount(@RequestBody User user){
 		String response=accService.accountUpdate(user);
+		return ResponseEntity.ok(response);
+	}
+	
+	@GetMapping("/account/check")
+	public ResponseEntity<String> checkMaturityDate(){
+		String response= accService.checkMaturityStatus();
 		return ResponseEntity.ok(response);
 	}
 

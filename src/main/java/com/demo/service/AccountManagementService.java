@@ -1,7 +1,5 @@
 package com.demo.service;
 
-import java.math.BigDecimal;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -13,6 +11,7 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.demo.dto.UserDTO;
 import com.demo.entity.Account;
 import com.demo.entity.FDAccount;
 import com.demo.entity.SavingsAccount;
@@ -24,106 +23,103 @@ import com.demo.repo.SavingsAccountRepository;
 import com.demo.repo.TransactionRepository;
 import com.demo.repo.UserRepository;
 
-
-
 @Service
 public class AccountManagementService implements AccountManagementServiceDAO {
-	
+
 	@Autowired
 	AccountRepository accountRepo;
-	
+
 	@Autowired
 	UserRepository userRepo;
-	
+
 	@Autowired
 	SavingsAccountRepository savingsAccountRepo;
-	
+
 	@Autowired
 	FDAccountRepository fdAccountRepo;
-	
+
 	@Autowired
 	TransactionRepository trRepo;
 
 	@Override
-	public String openAccount(User user) {
-		if(userRepo.checkNullUserId()==null) {
-			user.setUserId(1);
-		}
-		else {
-		user.setUserId(userRepo.getMaxUserId()+1);
-		}
-		userRepo.save(user);
-		if(user.getAccountType().equals("Saving")) {
-			Account acc = new SavingsAccount();  //Up-Casting
-			SavingsAccount account= (SavingsAccount)acc; // Down-Casting
-			if(accountRepo.checkNullAccountNo()==null) {
-				account.setAccountNo(1001L);
-			}
-			else {
-			account.setAccountNo(accountRepo.getMaxAccountNo()+1L);
-			}
-			String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
-			account.setBalance(BigDecimal.valueOf(3000));
-			account.setOpeningDate(date);
-			account.setAccType(user.getAccountType());
-			account.setUser(user);
-			account.getInrestRate();
-			accountRepo.save(account);
-		
-			return "Saving Account Opened Successfully";
-			
-		}
-		else {
-			Account acc = new FDAccount(); //Up-Casting
-			FDAccount account = (FDAccount)acc; //Down-Casting
-			if(accountRepo.checkNullAccountNo()==null) {
-				account.setAccountNo(1001L);
-			}
-			else {
-			account.setAccountNo(accountRepo.getMaxAccountNo()+1L);
-			}
-			 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-		     String date= sdf.format(new Date());
-			//account.setAccountNo(10002L);
-			account.setBalance(BigDecimal.valueOf(3000));
-			account.setAccType(user.getAccountType());
-			account.setOpeningDate(date);
-			account.setUser(user);
-			account.getInrestRate();
-			
-	        Calendar cal = Calendar.getInstance();
-	        try{  
-	        	cal.setTime(sdf.parse(date)); 
-	         }catch(ParseException e){  
-	             e.printStackTrace();  
-	          }  
-	        
-	        cal.add(Calendar.DAY_OF_YEAR, 3); 
+	public String openAccount(UserDTO userDTO) {
+		User user = new User();
+		user.setFirstName(userDTO.getFirstName());
+		user.setLastName(userDTO.getLastName());
+		user.setAddress(userDTO.getAddress());
+		user.setAadharNo(userDTO.getAadharNo());
+		user.setPanCard(userDTO.getPanCard());
+		user.setPhoneNo(userDTO.getPhoneNo());
 
-			account.setMaturityDate(sdf.format(cal.getTime()));
+		
+
+		/* User use= userRepo.save(user); */
+
+		if (userDTO.getAccountType().equals("Saving")) {
+			Account acc = new SavingsAccount(); // Up-Casting
+			SavingsAccount account = (SavingsAccount) acc; // Down-Casting
+			if (accountRepo.checkNullAccountNo() == null) {
+				account.setAccountNo(1001L);
+			} else {
+				account.setAccountNo(accountRepo.getMaxAccountNo() + 1L);
+			}
+			Date date = new Date();
+			account.setBalance(userDTO.getBalance());
+			account.setOpeningDate(date);
+			account.setAccType(userDTO.getAccountType());
+			account.setUser(user);
+			account.getInterestRate();
+			accountRepo.save(account);
+
+			return "Saving Account Opened Successfully";
+
+		} else {
+			Account acc = new FDAccount(); // Up-Casting
+			FDAccount account = (FDAccount) acc; // Down-Casting
+			if (accountRepo.checkNullAccountNo() == null) {
+				account.setAccountNo(1001L);
+			} else {
+				account.setAccountNo(accountRepo.getMaxAccountNo() + 1L);
+			}
+			Date date = new Date();
+			account.setBalance(userDTO.getBalance());
+			account.setOpeningDate(date);
+			account.setAccType(userDTO.getAccountType());
+			account.setUser(user);
+			account.getInterestRate();
+
+			Calendar calender = Calendar.getInstance();
+			calender.setTime(date);
+			calender.add(Calendar.YEAR, 3);
+			account.setMaturityDate(calender.getTime());
 			account.setAccountRenew(false);
 			accountRepo.save(account);
 			return "FD Account Opened Successfully";
 		}
 
-		
 	}
 
 	@Transactional
 	@Override
 	public String tranctionOccur(Transaction tr) {
-		Optional<Account> fromAccount= accountRepo.findById(tr.getFromAccount());
-		Optional<Account> toAccount= accountRepo.findById(tr.getToAccount());
-		
-		if(fromAccount.get().getAccType().equals("Saving") && toAccount.get().getAccType().equals("Saving")) {
-		accountRepo.updateFromAccountBalance(tr.getFromAccount(), tr.getAmount());
-		accountRepo.updateToAccountBalance(tr.getToAccount(), tr.getAmount());
-		String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
-		tr.setTrDate(date);
-		trRepo.save(tr);
-		return "Tranaction Succesfull";
-		}
-		else {
+		Optional<Account> fromAccount = accountRepo.findById(tr.getFromAccount());
+		Optional<Account> toAccount = accountRepo.findById(tr.getToAccount());
+
+		if (fromAccount.get().getAccType().equals("Saving") && toAccount.get().getAccType().equals("Saving")) {
+			if (fromAccount.get().getBalance().compareTo(tr.getAmount()) == -1) {
+				return "Insufficient Balance";
+			} else {
+
+				accountRepo.updateFromAccountBalance(tr.getFromAccount(), tr.getAmount());
+				accountRepo.updateToAccountBalance(tr.getToAccount(), tr.getAmount());
+				String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+				tr.setTrDate(date);
+
+				// System.out.println(1/0);
+				trRepo.save(tr);
+				return "Tranaction Succesfull";
+			}
+		} else {
 			return "Transaction Not Possible in FD Account";
 		}
 	}
@@ -139,8 +135,19 @@ public class AccountManagementService implements AccountManagementServiceDAO {
 		userRepo.save(user);
 		return "Account Updated Successfully";
 	}
-	
-	
-	
+
+	@Override
+	public String checkMaturityStatus() {
+		List<FDAccount> fdList = fdAccountRepo.findAll();
+		Date date = new Date();
+		for (int i = 0; i < fdList.size(); i++) {
+			if(fdList.get(i).getMaturityDate().compareTo(date)==-1) {
+				fdList.get(i).setAccountRenew(true);
+				fdAccountRepo.save(fdList.get(i));
+			}
+
+		}
+		return "All Maturity Date checked";
+	}
 
 }

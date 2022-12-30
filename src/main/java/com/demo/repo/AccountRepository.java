@@ -26,5 +26,7 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 	@Modifying
 	@Query(value="update Account ac set ac.balance=ac.balance - ?2  where ac.accountNo=?1")
 	void updateFromAccountBalance(long fromaccount, BigDecimal amount) ;
+	
+	
 
 }

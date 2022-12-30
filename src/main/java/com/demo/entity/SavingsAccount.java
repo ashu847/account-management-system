@@ -2,6 +2,7 @@ package com.demo.entity;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -18,13 +19,13 @@ public class SavingsAccount extends Account{
 		super();
 	}
 
-	public SavingsAccount(long accountNo, BigDecimal balance, String openingDate,String accType, BigDecimal interestEarned) {
+	public SavingsAccount(long accountNo, BigDecimal balance, Date openingDate,String accType, BigDecimal interestEarned) {
 		super(accountNo, balance, openingDate, accType);
 		this.interestEarned=interestEarned;
 	}
 
 	@Override
-	public BigDecimal getInrestRate() {
+	public BigDecimal getInterestRate() {
 		final double interestRate= 0.04;
 		interestEarned= balance.multiply(BigDecimal.valueOf(interestRate*30)).divide(BigDecimal.valueOf(365.0),RoundingMode.HALF_UP);
         return interestEarned;

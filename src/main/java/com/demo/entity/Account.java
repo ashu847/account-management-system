@@ -1,6 +1,7 @@
 package com.demo.entity;
 
 import java.math.BigDecimal;
+import java.util.Date;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -11,6 +12,8 @@ import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
 @Table(name = "ACCOUNT")
@@ -25,12 +28,13 @@ public abstract class Account {
 	BigDecimal balance;
 	
 	@Column(name="OPENINGDATE")
-	String openingDate;
+	Date openingDate;
 	
 	@Column(name="ACCOUNTTYPE")
 	String accType;
 	
 	
+	@JsonIgnoreProperties("account")
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id", referencedColumnName = "userId")
     User user;
@@ -42,7 +46,7 @@ public abstract class Account {
 
 
 
-	public Account(long accountNo, BigDecimal balance, String openingDate, String accType) {
+	public Account(long accountNo, BigDecimal balance, Date openingDate, String accType) {
 		this.accountNo = accountNo;
 		this.balance = balance;
 		this.openingDate = openingDate;
@@ -73,15 +77,19 @@ public abstract class Account {
 
 
 
-	public String getOpeningDate() {
+	
+
+	public Date getOpeningDate() {
 		return openingDate;
 	}
 
 
 
-	public void setOpeningDate(String openingDate) {
+
+	public void setOpeningDate(Date openingDate) {
 		this.openingDate = openingDate;
 	}
+
 
 
 
@@ -107,7 +115,7 @@ public abstract class Account {
 
 
 
-	public abstract BigDecimal getInrestRate();
+	public abstract BigDecimal getInterestRate();
 	
 
 }

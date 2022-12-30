@@ -1,12 +1,17 @@
 package com.demo.entity;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 @Entity
@@ -15,6 +20,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 public class User {
 
 	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name="USERID")
 	private int userId;
 	
@@ -33,11 +39,11 @@ public class User {
 	@Column(name="PHONENO")
 	private String phoneNo;
 	
-	@Column(name="ADDRESS")
-	private String address;
+	@JsonIgnoreProperties("user")
+	@OneToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "ADDRESSID")
+	private Address address;
 	
-	@Column(name="ACCOUNTTYPE")
-	private String accountType;
 	
 	
 	@OneToOne(mappedBy = "user")
@@ -48,16 +54,15 @@ public class User {
 	public User() {
 	}
 
-	public User(int userId, String firstName, String lastName, String panCard, String aadharNo, String phoneNo,
-			String address, String accountType) {
+	public User(int userId, String firstName, String lastName, String panCard, String aadharNo, String phoneNo
+			) {
 		this.userId = userId;
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.panCard = panCard;
 		this.aadharNo = aadharNo;
 		this.phoneNo = phoneNo;
-		this.address = address;
-		this.accountType=accountType;
+		
 	}
 
 	public int getUserId() {
@@ -108,11 +113,13 @@ public class User {
 		this.phoneNo = phoneNo;
 	}
 
-	public String getAddress() {
+	
+
+	public Address getAddress() {
 		return address;
 	}
 
-	public void setAddress(String address) {
+	public void setAddress(Address address) {
 		this.address = address;
 	}
 
@@ -124,14 +131,7 @@ public class User {
 		this.account = account;
 	}
 
-	public String getAccountType() {
-		return accountType;
-	}
-
-	public void setAccountType(String accountType) {
-		this.accountType = accountType;
-	}
-
+	
 	
 	
 	
